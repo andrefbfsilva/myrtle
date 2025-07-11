@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Myrtle - Major Incident Reporting Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(to bottom right, #052e16, #14532d);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(to right, #4ade80, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.125rem;
+            color: #86efac;
+            margin-top: 0.25rem;
+        }
+
+        .attribution {
+            font-size: 0.875rem;
+            color: #86efac;
+            margin-top: 0.5rem;
+        }
+
+        .toolbar {
+            background: rgba(0,0,0,0.3);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .toolbar-button {
+            background: rgba(20, 83, 45, 0.5);
+            border: 1px solid #15803d;
+            color: #86efac;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.875rem;
+        }
+
+        .toolbar-button:hover {
+            background: rgba(20, 83, 45, 0.8);
+            color: white;
+        }
+
+        .status-message {
+            font-size: 0.875rem;
+            color: #4ade80;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: rgba(20, 83, 45, 0.5);
+            padding: 2rem;
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #15803d;
+            backdrop-filter: blur(10px);
+        }
+
+        .card:hover {
+            background: rgba(20, 83, 45, 0.7);
+            transform: scale(1.05);
+        }
+
+        .card-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .card p {
+            color: #86efac;
+        }
+
+        .form-container {
+            background: rgba(20, 83, 45, 0.3);
+            border-radius: 1rem;
+            padding: 2rem;
+            border: 1px solid #15803d;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-header {
+            margin-bottom: 2rem;
+        }
+
+        .form-title {
+            font-size: 1.875rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-description {
+            color: #86efac;
+            font-style: italic;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 0.5rem;
+            background: rgba(20, 83, 45, 0.5);
+            border-radius: 9999px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #16a34a, #9333ea);
+            border-radius: 9999px;
+            transition: width 0.3s;
+        }
+
+        .form-field {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #86efac;
+        }
+
+        .form-help {
+            font-size: 0.75rem;
+            color: #4ade80;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(20, 83, 45, 0.5);
+            border: 1px solid #15803d;
+            border-radius: 0.5rem;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #c084fc;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+
+        .button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .button-back {
+            background: #15803d;
+            color: white;
+        }
+
+        .button-back:hover {
+            background: #16a34a;
+        }
+
+        .button-back:disabled {
+            background: rgba(20, 83, 45, 0.5);
+            color: #15803d;
+            cursor: not-allowed;
+        }
+
+        .button-next {
+            background: linear-gradient(to right, #16a34a, #9333ea);
+            color: white;
+            display: flex;
+            align-items: center;
+        }
+
+        .button-next:hover {
+            background: linear-gradient(to right, #15803d, #7e22ce);
+        }
+
+        .history-section {
+            background: rgba(20, 83, 45, 0.3);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid #15803d;
+            backdrop-filter: blur(10px);
+        }
+
+        .history-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            color: #e0f2fe;
+        }
+
+        .history-item {
+            background: rgba(20, 83, 45, 0.5);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #15803d;
+            margin-bottom: 0.75rem;
+        }
+
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-right: 0.75rem;
+        }
+
+        .badge-incident {
+            background: #dc2626;
+        }
+
+        .badge-mystery {
+            background: #9333ea;
+        }
+
+        .download-button, .view-button {
+            color: #4ade80;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            margin-left: 0.5rem;
+        }
+
+        .download-button:hover, .view-button:hover {
+            color: #86efac;
+        }
+
+        .back-button {
+            color: #86efac;
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .back-button:hover {
+            color: white;
+        }
+
+        .step-indicator {
+            color: #86efac;
+        }
+
+        .tip {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.75rem;
+            color: #4ade80;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #14532d;
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 90%;
+            max-height: 80%;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .report-preview {
+            background: rgba(0,0,0,0.3);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 0.875rem;
+        }
+
+        .hidden-input {
+            position: absolute;
+            left: -9999px;
+        }
+
+        /* Estilos para a tabela de contactos */
+        .contacts-table {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .contacts-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 50px;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: #86efac;
+            font-weight: 500;
+        }
+
+        .contact-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 50px;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .contact-input {
+            padding: 0.5rem;
+            background: rgba(20, 83, 45, 0.5);
+            border: 1px solid #15803d;
+            border-radius: 0.25rem;
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        .contact-input:focus {
+            outline: none;
+            border-color: #c084fc;
+        }
+
+        .add-contact-btn {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid #22c55e;
+            color: #86efac;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .add-contact-btn:hover {
+            background: rgba(34, 197, 94, 0.3);
+            color: white;
+        }
+
+        .remove-contact-btn {
+            background: rgba(220, 38, 38, 0.2);
+            border: 1px solid #dc2626;
+            color: #fca5a5;
+            padding: 0.25rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .remove-contact-btn:hover {
+            background: rgba(220, 38, 38, 0.3);
+            color: white;
+        }
+
+        .duration-select {
+            padding: 0.5rem;
+            background: rgba(20, 83, 45, 0.5);
+            border: 1px solid #15803d;
+            border-radius: 0.25rem;
+            color: white;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="root" class="container"></div>
+    
+    <!-- Modal para visualizar relatório -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="MytleApp.closeModal()">×</button>
+            <h3 style="margin-bottom: 1rem;">Relatório</h3>
+            <div id="reportContent" class="report-preview"></div>
+            <div style="margin-top: 1rem; text-align: center;">
+                <button class="toolbar-button" onclick="MytleApp.downloadCurrentReport()">
+                    💾 Guardar Relatório
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sistema de gestão de dados
+        const DataManager = {
+            dbName: 'MytleDB',
+            dbVersion: 1,
+            db: null,
+            
+            init: async function() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(this.dbName, this.dbVersion);
+                    
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => {
+                        this.db = request.result;
+                        resolve();
+                    };
+                    
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        if (!db.objectStoreNames.contains('incidents')) {
+                            db.createObjectStore('incidents', { keyPath: 'id' });
+                        }
+                    };
+                });
+            },
+            
+            saveIncident: async function(incident) {
+                const transaction = this.db.transaction(['incidents'], 'readwrite');
+                const store = transaction.objectStore('incidents');
+                return store.put(incident);
+            },
+            
+            loadIncidents: async function() {
+                const transaction = this.db.transaction(['incidents'], 'readonly');
+                const store = transaction.objectStore('incidents');
+                const request = store.getAll();
+                
+                return new Promise((resolve, reject) => {
+                    request.onsuccess = () => {
+                        const incidents = request.result;
+                        resolve(incidents.sort((a, b) => b.id - a.id));
+                    };
+                    request.onerror = () => reject(request.error);
+                });
+            },
+            
+            exportData: function(incidents) {
+                const data = {
+                    version: '1.0',
+                    exportDate: new Date().toISOString(),
+                    incidents: incidents
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `myrtle_backup_${new Date().getTime()}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            },
+            
+            importData: function(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            if (data.incidents) {
+                                for (const incident of data.incidents) {
+                                    await this.saveIncident(incident);
+                                }
+                                resolve(data.incidents.length);
+                            }
+                        } catch (error) {
+                            reject(error);
+                        }
+                    };
+                    reader.readAsText(file);
+                });
+            }
+        };
+
+        // Ícone Myrtle SVG
+        function MyrtleIcon(size = 80) {
+            return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" fill="none">
+                <ellipse cx="30" cy="35" rx="15" ry="25" fill="#2D5A2D" transform="rotate(-20 30 35)"/>
+                <ellipse cx="70" cy="35" rx="15" ry="25" fill="#3A6B3A" transform="rotate(20 70 35)"/>
+                <ellipse cx="50" cy="30" rx="12" ry="20" fill="#2D5A2D"/>
+                <circle cx="45" cy="25" r="5" fill="white" opacity="0.9"/>
+                <circle cx="55" cy="35" r="5" fill="white" opacity="0.9"/>
+                <circle cx="40" cy="40" r="4" fill="white" opacity="0.8"/>
+                <circle cx="35" cy="50" r="3" fill="#4A2C4E"/>
+                <circle cx="65" cy="48" r="3" fill="#4A2C4E"/>
+                <rect x="48" y="50" width="4" height="30" fill="#8B4513" rx="2"/>
+            </svg>`;
+        }
+
+        // Aplicação Myrtle
+        const MytleApp = {
+            currentIncident: null,
+            incidents: [],
+            currentStep: 0,
+            incidentData: {},
+            currentViewingReport: null,
+            
+            init: async function() {
+                await DataManager.init();
+                this.incidents = await DataManager.loadIncidents();
+                this.render();
+            },
+            
+            incidentSteps: [
+                {
+                    title: "Origem do Alerta",
+                    description: "Identifique de onde veio o alerta ou problema",
+                    fields: [
+                        { name: "source", label: "Fonte", type: "select", options: ["Monitorização", "ITSM", "Email", "Telefone", "Observação"] },
+                        { name: "system", label: "Sistema Afetado", type: "text", help: "Nome do servidor, aplicação ou serviço" },
+                        { name: "timestamp", label: "Hora de Deteção", type: "datetime-local" }
+                    ]
+                },
+                {
+                    title: "Interpretação da Mensagem",
+                    description: "Procure palavras-chave como códigos de erro, nomes de servidores, etc.",
+                    fields: [
+                        { name: "error_codes", label: "Códigos de Erro", type: "text", help: "Ex: ORA-12345, Error 404" },
+                        { name: "keywords", label: "Palavras-chave Encontradas", type: "textarea", help: "Tablespace, filesystem, schema, etc." },
+                        { name: "priority", label: "Prioridade", type: "select", options: ["Crítico", "Alto", "Médio", "Baixo"] }
+                    ]
+                },
+                {
+                    title: "Pesquisa de Soluções",
+                    description: "Procure em KEDB, Runbooks, ITSM e emails (nesta ordem!)",
+                    fields: [
+                        { name: "kedb_search", label: "Resultado da Pesquisa KEDB", type: "textarea" },
+                        { name: "runbook_found", label: "Runbook Encontrado?", type: "select", options: ["Sim", "Não", "Parcial"] },
+                        { name: "previous_incidents", label: "Incidentes Anteriores Similares", type: "textarea" }
+                    ]
+                },
+                {
+                    title: "Verificação do Ambiente",
+                    description: "Procure alertas relacionados e verifique a integridade do sistema",
+                    fields: [
+                        { name: "related_alerts", label: "Alertas Relacionados", type: "textarea" },
+                        { name: "host_integrity", label: "Integridade do Host", type: "select", options: ["OK", "Degradado", "Crítico"] },
+                        { name: "recent_changes", label: "Mudanças Recentes", type: "textarea" }
+                    ]
+                },
+                {
+                    title: "Decisão e Ação",
+                    description: "Resolver, reatribuir ou escalar",
+                    fields: [
+                        { name: "action", label: "Ação Tomada", type: "select", options: ["Resolvido", "Reatribuído", "Escalado"] },
+                        { name: "action_details", label: "Detalhes da Ação", type: "textarea" },
+                        { name: "assigned_to", label: "Atribuído a", type: "text" }
+                    ]
+                },
+                {
+                    title: "War Room (se aplicável)",
+                    description: "Para problemas complexos que requerem colaboração",
+                    fields: [
+                        { name: "war_room_created", label: "War Room Criada?", type: "select", options: ["Sim", "Não", "N/A"] },
+                        { name: "focal_point", label: "Ponto Focal (Comunicação)", type: "text" },
+                        { name: "troubleshooters", label: "Equipa de Troubleshooting", type: "textarea" }
+                    ]
+                },
+                {
+                    title: "Resolução",
+                    description: "Identificar origem e aplicar solução",
+                    fields: [
+                        { name: "root_cause", label: "Causa Raiz", type: "textarea" },
+                        { name: "solution_type", label: "Tipo de Solução", type: "select", options: ["Fix Definitivo", "Workaround", "Pedido ao Fornecedor"] },
+                        { name: "solution_details", label: "Detalhes da Solução", type: "textarea" }
+                    ]
+                },
+                {
+                    title: "Registo de Contactos",
+                    description: "Documente todas as pessoas contactadas durante o incidente",
+                    fields: [
+                        { name: "contacts", label: "Contactos Realizados", type: "contacts_table" }
+                    ]
+                },
+                {
+                    title: "Post-Mortem",
+                    description: "Documentar e aprender para melhoria contínua",
+                    fields: [
+                        { name: "what_happened", label: "O que aconteceu?", type: "textarea" },
+                        { name: "how_fixed", label: "Como foi corrigido?", type: "textarea" },
+                        { name: "prevention", label: "Como prevenir no futuro?", type: "textarea" },
+                        { name: "lessons_learned", label: "Lições Aprendidas", type: "textarea" }
+                    ]
+                }
+            ],
+            
+            misterySteps: [
+                {
+                    title: "Tomar Notas e Avaliar",
+                    description: "Documente tudo e calcule o impacto",
+                    fields: [
+                        { name: "reporter", label: "Quem Reportou", type: "text" },
+                        { name: "symptoms", label: "Sintomas Descritos", type: "textarea", help: "Seja muito detalhado" },
+                        { name: "impact", label: "Impacto", type: "select", options: ["Crítico", "Alto", "Médio", "Baixo"] },
+                        { name: "users_affected", label: "Utilizadores Afetados", type: "number" },
+                        { name: "manager_informed", label: "Gestor Informado?", type: "select", options: ["Sim", "Não", "A fazer"] }
+                    ]
+                },
+                {
+                    title: "Procurar Pistas",
+                    description: "Verifique KEDB, Runbooks, ITSM e emails",
+                    fields: [
+                        { name: "kedb_results", label: "Resultados KEDB", type: "textarea" },
+                        { name: "similar_cases", label: "Casos Similares Encontrados", type: "textarea" },
+                        { name: "relevant_emails", label: "Emails Relevantes", type: "textarea" }
+                    ]
+                },
+                {
+                    title: "Estado da Infraestrutura",
+                    description: "Está tudo o resto OK?",
+                    fields: [
+                        { name: "infra_status", label: "Estado Geral", type: "select", options: ["Tudo OK", "Parcialmente Degradado", "Múltiplos Problemas"] },
+                        { name: "related_events", label: "Eventos Relacionados", type: "textarea" },
+                        { name: "strange_behaviors", label: "Comportamentos Estranhos", type: "textarea" }
+                    ]
+                },
+                {
+                    title: "Registar no ITSM",
+                    description: "Crie um ticket oficial",
+                    fields: [
+                        { name: "ticket_number", label: "Número do Ticket", type: "text" },
+                        { name: "ticket_priority", label: "Prioridade do Ticket", type: "select", options: ["P1", "P2", "P3", "P4"] },
+                        { name: "ticket_description", label: "Descrição no Ticket", type: "textarea" }
+                    ]
+                },
+                {
+                    title: "Verificar Mudanças",
+                    description: "Calendário de mudanças e manutenções",
+                    fields: [
+                        { name: "recent_changes", label: "Mudanças Recentes", type: "textarea" },
+                        { name: "maintenance_windows", label: "Janelas de Manutenção", type: "textarea" },
+                        { name: "deployments", label: "Deployments Recentes", type: "textarea" }
+                    ]
+                },
+                {
+                    title: "Primeiras Deduções",
+                    description: "Pense como um detetive!",
+                    fields: [
+                        { name: "hypothesis_1", label: "Hipótese 1", type: "textarea", help: "Ex: Se 2 de 3 apps funcionam, não é o servidor" },
+                        { name: "hypothesis_2", label: "Hipótese 2", type: "textarea" },
+                        { name: "hypothesis_3", label: "Hipótese 3", type: "textarea" },
+                        { name: "most_likely", label: "Mais Provável", type: "select", options: ["Hipótese 1", "Hipótese 2", "Hipótese 3"] }
+                    ]
+                },
+                {
+                    title: "Investigação",
+                    description: "Pergunte, ligue, procure informação",
+                    fields: [
+                        { name: "people_contacted", label: "Pessoas Contactadas", type: "textarea" },
+                        { name: "information_gathered", label: "Informação Recolhida", type: "textarea" },
+                        { name: "new_leads", label: "Novas Pistas", type: "textarea" }
+                    ]
+                },
+                {
+                    title: "Troubleshooting Conjunto",
+                    description: "Trabalhe com especialistas",
+                    fields: [
+                        { name: "sysadmin_notes", label: "Notas do Sysadmin", type: "textarea" },
+                        { name: "dba_notes", label: "Notas do DBA", type: "textarea" },
+                        { name: "network_notes", label: "Notas da Equipa de Rede", type: "textarea" },
+                        { name: "trail_followed", label: "Rasto Seguido", type: "textarea" }
+                    ]
+                },
+                {
+                    title: "Feedback aos Stakeholders",
+                    description: "Mantenha todos informados",
+                    fields: [
+                        { name: "requester_updated", label: "Requisitante Atualizado?", type: "select", options: ["Sim", "Não"] },
+                        { name: "managers_updated", label: "Gestores Atualizados?", type: "select", options: ["Sim", "Não"] },
+                        { name: "update_content", label: "Conteúdo da Atualização", type: "textarea" }
+                    ]
+                },
+                {
+                    title: "Resolução Final",
+                    description: "Identificar origem e resolver",
+                    fields: [
+                        { name: "source_identified", label: "Origem Identificada", type: "textarea" },
+                        { name: "resolution_type", label: "Tipo de Resolução", type: "select", options: ["Resolvido", "Workaround", "Escalado para Fornecedor"] },
+                        { name: "resolution_details", label: "Detalhes da Resolução", type: "textarea" }
+                    ]
+                },
+                {
+                    title: "Registo de Contactos",
+                    description: "Documente todas as pessoas contactadas durante a investigação",
+                    fields: [
+                        { name: "contacts", label: "Contactos Realizados", type: "contacts_table" }
+                    ]
+                },
+                {
+                    title: "Post-Mortem Detalhado",
+                    description: "Documentar para melhoria contínua",
+                    fields: [
+                        { name: "full_timeline", label: "Timeline Completa", type: "textarea" },
+                        { name: "root_cause_analysis", label: "Análise da Causa Raiz", type: "textarea" },
+                        { name: "kb_updates", label: "Atualizações para a KB", type: "textarea" },
+                        { name: "process_improvements", label: "Melhorias de Processo", type: "textarea" }
+                    ]
+                }
+            ],
+            
+            startNewIncident: function(type) {
+                this.currentIncident = {
+                    id: Date.now(),
+                    type: type,
+                    startTime: new Date().toISOString(),
+                    data: {}
+                };
+                this.currentStep = 0;
+                this.incidentData = {};
+                this.render();
+            },
+            
+            handleFieldChange: function(fieldName, value) {
+                this.incidentData[fieldName] = value;
+            },
+            
+            // Funções para gerir contactos
+            initContacts: function() {
+                if (!this.incidentData.contacts) {
+                    this.incidentData.contacts = [
+                        { name: '', time: '', duration: '15min' }
+                    ];
+                }
+            },
+            
+            addContact: function() {
+                if (!this.incidentData.contacts) {
+                    this.initContacts();
+                }
+                this.incidentData.contacts.push({ name: '', time: '', duration: '15min' });
+                this.render();
+            },
+            
+            removeContact: function(index) {
+                if (this.incidentData.contacts && this.incidentData.contacts.length > 1) {
+                    this.incidentData.contacts.splice(index, 1);
+                    this.render();
+                }
+            },
+            
+            updateContact: function(index, field, value) {
+                if (!this.incidentData.contacts) {
+                    this.initContacts();
+                }
+                if (this.incidentData.contacts[index]) {
+                    this.incidentData.contacts[index][field] = value;
+                }
+            },
+            
+            nextStep: function() {
+                const steps = this.currentIncident.type === 'INCIDENT' ? this.incidentSteps : this.misterySteps;
+                if (this.currentStep < steps.length - 1) {
+                    this.currentStep++;
+                } else {
+                    this.generateReport();
+                }
+                this.render();
+            },
+            
+            prevStep: function() {
+                if (this.currentStep > 0) {
+                    this.currentStep--;
+                }
+                this.render();
+            },
+            
+            generateReport: async function() {
+                const incident = {
+                    ...this.currentIncident,
+                    data: this.incidentData,
+                    endTime: new Date().toISOString(),
+                    report: this.generateReportContent()
+                };
+                
+                // Guardar na base de dados
+                await DataManager.saveIncident(incident);
+                this.incidents.unshift(incident);
+                
+                this.currentIncident = null;
+                this.currentStep = 0;
+                this.incidentData = {};
+                this.render();
+            },
+            
+            generateReportContent: function() {
+                const steps = this.currentIncident.type === 'INCIDENT' ? this.incidentSteps : this.misterySteps;
+                let report = `# Myrtle - Relatório de ${this.currentIncident.type === 'INCIDENT' ? 'Incidente' : 'Investigação'}\n\n`;
+                report += `**Sistema:** Myrtle (AndréTools)\n`;
+                report += `**Autor:** André\n`;
+                report += `**ID:** ${this.currentIncident.id}\n`;
+                report += `**Início:** ${new Date(this.currentIncident.startTime).toLocaleString('pt-PT')}\n`;
+                report += `**Fim:** ${new Date().toLocaleString('pt-PT')}\n\n`;
+                
+                steps.forEach((step, index) => {
+                    report += `## ${index + 1}. ${step.title}\n\n`;
+                    step.fields.forEach(field => {
+                        if (field.type === 'contacts_table' && this.incidentData.contacts && this.incidentData.contacts.length > 0) {
+                            const validContacts = this.incidentData.contacts.filter(c => c.name && c.time);
+                            if (validContacts.length > 0) {
+                                report += `**${field.label}:**\n\n`;
+                                report += `| Nome | Hora | Duração |\n`;
+                                report += `|------|------|----------|\n`;
+                                validContacts.forEach(contact => {
+                                    report += `| ${contact.name} | ${contact.time} | ${contact.duration} |\n`;
+                                });
+                                report += '\n';
+                            }
+                        } else if (this.incidentData[field.name]) {
+                            report += `**${field.label}:** ${this.incidentData[field.name]}\n\n`;
+                        }
+                    });
+                });
+                
+                return report;
+            },
+            
+            downloadReport: function(incident) {
+                const blob = new Blob(['\ufeff' + incident.report], {type: 'text/markdown;charset=utf-8'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `myrtle_report_${incident.id}.md`;
+                a.click();
+                URL.revokeObjectURL(url);
+            },
+            
+            viewReport: function(incident) {
+                this.currentViewingReport = incident;
+                const modal = document.getElementById('reportModal');
+                const content = document.getElementById('reportContent');
+                content.textContent = incident.report;
+                modal.style.display = 'flex';
+            },
+            
+            closeModal: function() {
+                document.getElementById('reportModal').style.display = 'none';
+                this.currentViewingReport = null;
+            },
+            
+            downloadCurrentReport: function() {
+                if (this.currentViewingReport) {
+                    this.downloadReport(this.currentViewingReport);
+                }
+            },
+            
+            exportAllData: function() {
+                DataManager.exportData(this.incidents);
+            },
+            
+            importData: async function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    try {
+                        const count = await DataManager.importData(file);
+                        this.incidents = await DataManager.loadIncidents();
+                        this.render();
+                        alert(`Importados ${count} incidentes com sucesso!`);
+                    } catch (error) {
+                        alert('Erro ao importar dados: ' + error.message);
+                    }
+                }
+                // Limpar o input
+                event.target.value = '';
+            },
+            
+            renderHome: function() {
+                return `
+                    <div class="header">
+                        <div class="logo-container">
+                            ${MyrtleIcon()}
+                            <div style="margin-left: 1rem;">
+                                <h1 class="title">Myrtle</h1>
+                                <p class="subtitle">Major Incident Reporting Tool</p>
+                            </div>
+                        </div>
+                        <p class="attribution">Parte das AndréTools • Criado por André</p>
+                    </div>
+                    
+                    <div class="toolbar">
+                        <div>
+                            <button class="toolbar-button" onclick="MytleApp.exportAllData()">
+                                📤 Exportar Dados
+                            </button>
+                            <button class="toolbar-button" onclick="document.getElementById('importFile').click()">
+                                📥 Importar Dados
+                            </button>
+                            <input type="file" id="importFile" class="hidden-input" accept=".json" onchange="MytleApp.importData(event)">
+                        </div>
+                        <div class="status-message">
+                            ${this.incidents.length} incidentes registados
+                        </div>
+                    </div>
+
+                    <div class="card-grid">
+                        <div class="card" onclick="MytleApp.startNewIncident('INCIDENT')">
+                            <div class="card-icon">⚠️</div>
+                            <h2>Novo Caso</h2>
+                            <p>Sistema detetou um problema • Origem clara • Alerta automático</p>
+                        </div>
+                        
+                        <div class="card" style="background: rgba(88, 28, 135, 0.5); border-color: #6b21a8;" 
+                             onclick="MytleApp.startNewIncident('MISTERY')">
+                            <div class="card-icon">🔍</div>
+                            <h2>Novo Mistério</h2>
+                            <p style="color: #e9d5ff;">Problema descoberto • Sintomas vagos • Requer investigação</p>
+                        </div>
+                    </div>
+
+                    ${this.incidents.length > 0 ? `
+                        <div class="history-section">
+                            <h3 class="history-title">
+                                ⏱️ Histórico de Incidentes
+                            </h3>
+                            ${this.incidents.slice(0, 10).map(inc => `
+                                <div class="history-item">
+                                    <div class="history-item-header">
+                                        <div>
+                                            <span class="badge ${inc.type === 'INCIDENT' ? 'badge-incident' : 'badge-mystery'}">
+                                                ${inc.type === 'INCIDENT' ? 'ALERTA' : 'MISTÉRIO'}
+                                            </span>
+                                            <span style="font-size: 0.875rem; color: #86efac;">
+                                                ${new Date(inc.startTime).toLocaleString('pt-PT')}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <button onclick='MytleApp.viewReport(${JSON.stringify(inc).replace(/'/g, "&apos;")})' 
+                                                    class="view-button">
+                                                👁️ Ver
+                                            </button>
+                                            <button onclick='MytleApp.downloadReport(${JSON.stringify(inc).replace(/'/g, "&apos;")})' 
+                                                    class="download-button">
+                                                💾 Guardar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                `;
+            },
+            
+            renderForm: function() {
+                const steps = this.currentIncident.type === 'INCIDENT' ? this.incidentSteps : this.misterySteps;
+                const currentStepData = steps[this.currentStep];
+                const progress = ((this.currentStep + 1) / steps.length) * 100;
+                
+                return `
+                    <button onclick="MytleApp.currentIncident = null; MytleApp.render();" class="back-button">
+                        ← Voltar ao Início
+                    </button>
+                    
+                    <div class="form-header">
+                        <h2 class="form-title">
+                            ${this.currentIncident.type === 'INCIDENT' ? '🚨 Alerta' : '🔍 Mistério'} #${this.currentIncident.id}
+                        </h2>
+                        <span class="step-indicator">
+                            Passo ${this.currentStep + 1} de ${steps.length}
+                        </span>
+                    </div>
+                    
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progress}%"></div>
+                    </div>
+
+                    <div class="form-container">
+                        <h3 class="form-title">${currentStepData.title}</h3>
+                        <p class="form-description">${currentStepData.description}</p>
+                        
+                        <div style="margin-top: 1.5rem;">
+                            ${currentStepData.fields.map(field => `
+                                <div class="form-field">
+                                    <label class="form-label">${field.label}</label>
+                                    ${field.help ? `<p class="form-help">${field.help}</p>` : ''}
+                                    
+                                    ${field.type === 'select' ? `
+                                        <select class="form-select" onchange="MytleApp.handleFieldChange('${field.name}', this.value)">
+                                            <option value="">Selecione...</option>
+                                            ${field.options.map(opt => `
+                                                <option value="${opt}" ${this.incidentData[field.name] === opt ? 'selected' : ''}>
+                                                    ${opt}
+                                                </option>
+                                            `).join('')}
+                                        </select>
+                                    ` : field.type === 'textarea' ? `
+                                        <textarea class="form-textarea" rows="4" 
+                                            onchange="MytleApp.handleFieldChange('${field.name}', this.value)"
+                                            placeholder="Insira ${field.label.toLowerCase()}...">${this.incidentData[field.name] || ''}</textarea>
+                                    ` : field.type === 'contacts_table' ? `
+                                        <div class="contacts-table">
+                                            <div class="contacts-header">
+                                                <div>Nome</div>
+                                                <div>Hora</div>
+                                                <div>Duração</div>
+                                                <div></div>
+                                            </div>
+                                            ${(() => {
+                                                if (!this.incidentData.contacts || this.incidentData.contacts.length === 0) {
+                                                    this.initContacts();
+                                                }
+                                                return this.incidentData.contacts.map((contact, index) => `
+                                                    <div class="contact-row">
+                                                        <input type="text" 
+                                                            class="contact-input" 
+                                                            value="${contact.name || ''}"
+                                                            onchange="MytleApp.updateContact(${index}, 'name', this.value)"
+                                                            placeholder="Nome da pessoa">
+                                                        <input type="time" 
+                                                            class="contact-input" 
+                                                            value="${contact.time || ''}"
+                                                            onchange="MytleApp.updateContact(${index}, 'time', this.value)">
+                                                        <select class="duration-select" 
+                                                            onchange="MytleApp.updateContact(${index}, 'duration', this.value)">
+                                                            <option value="5min" ${contact.duration === '5min' ? 'selected' : ''}>5 min</option>
+                                                            <option value="15min" ${contact.duration === '15min' ? 'selected' : ''}>15 min</option>
+                                                            <option value="30min" ${contact.duration === '30min' ? 'selected' : ''}>30 min</option>
+                                                            <option value="1h" ${contact.duration === '1h' ? 'selected' : ''}>1 hora</option>
+                                                            <option value="2h" ${contact.duration === '2h' ? 'selected' : ''}>2 horas</option>
+                                                            <option value="outro" ${contact.duration === 'outro' ? 'selected' : ''}>Outro</option>
+                                                        </select>
+                                                        <button class="remove-contact-btn" 
+                                                            onclick="MytleApp.removeContact(${index})"
+                                                            ${this.incidentData.contacts.length === 1 ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}>
+                                                            ✕
+                                                        </button>
+                                                    </div>
+                                                `).join('');
+                                            })()}
+                                            <button class="add-contact-btn" onclick="MytleApp.addContact()">
+                                                + Adicionar Contacto
+                                            </button>
+                                        </div>
+                                    ` : `
+                                        <input type="${field.type}" class="form-input" 
+                                            value="${this.incidentData[field.name] || ''}"
+                                            onchange="MytleApp.handleFieldChange('${field.name}', this.value)"
+                                            placeholder="Insira ${field.label.toLowerCase()}..." />
+                                    `}
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <div class="button-container">
+                            <button onclick="MytleApp.prevStep()" 
+                                    class="button button-back" 
+                                    ${this.currentStep === 0 ? 'disabled' : ''}>
+                                Anterior
+                            </button>
+                            
+                            <button onclick="MytleApp.nextStep()" class="button button-next">
+                                ${this.currentStep === steps.length - 1 ? 'Gerar Relatório' : 'Próximo'} →
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="tip">
+                        💡 Dica: Este guia segue as melhores práticas de IT Service Operations
+                    </div>
+                `;
+            },
+            
+            render: function() {
+                const root = document.getElementById('root');
+                root.innerHTML = this.currentIncident ? this.renderForm() : this.renderHome();
+            }
+        };
+        
+        // Iniciar aplicação
+        window.onload = function() {
+            MytleApp.init();
+        };
+        
+        // Fechar modal ao clicar fora
+        window.onclick = function(event) {
+            const modal = document.getElementById('reportModal');
+            if (event.target === modal) {
+                MytleApp.closeModal();
+            }
+        };
+    </script>
+</body>
+</html>
